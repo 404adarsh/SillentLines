@@ -20,6 +20,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 # Private backend and data artifacts
+php/*.sql
 src/php/
 backend/
 backend_extracted/

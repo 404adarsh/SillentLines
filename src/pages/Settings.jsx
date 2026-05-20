@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
+import { useNavigate, Link } from "react-router-dom";
 import { ArrowDown, ArrowUp, Ban, BookOpen, BriefcaseBusiness, Calculator, ExternalLink, FileCode2, GripVertical, Home, Info, KeyRound, LineChart, Loader2, LockKeyhole, Mail, Palette, RefreshCcw, Save, Search, Settings2, Shield, SmilePlus, SunMedium, Type, Upload, User, UsersRound, X } from "lucide-react";
-import { Link } from "react-router-dom";
 import { apiUrl, postJson } from "../lib/api";
 import { defaultWorkspacePrefs, normalizePrefs, savePrefsLocal } from "../component/WorkspaceSettings";
 import { defaultEditorCustomize, menuShortcutOptions, normalizeEditorCustomize, resetEditorCustomize, requiredEditorButtons, shrinkImageFile } from "../lib/writingCustomize";
@@ -26,6 +26,7 @@ const stickerOptions = [
 
 export default function SettingsPage() {
   const { user } = useAuth0();
+  const navigate = useNavigate();
   const [prefs, setPrefs] = useState(defaultWorkspacePrefs);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
@@ -411,6 +412,17 @@ export default function SettingsPage() {
           <p className="mt-4 text-sm font-medium leading-6 text-slate-600">
             Change what this journal is mainly for, and we will keep the navigation and guidance focused on that use.
           </p>
+          <p className="mt-3 text-sm text-slate-600">
+            Use this to update your Auth0 credentials and local backend keys, including Alchemy, Sarvam, OpenAI, and email SMTP settings.
+          </p>
+          <button
+            type="button"
+            onClick={() => navigate("/settings?force_setup=1")}
+            className="mt-4 inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-950 shadow-sm transition hover:bg-slate-100"
+          >
+            <KeyRound className="h-4 w-4" />
+            Edit Auth0, backend keys, and email credentials
+          </button>
         </div>
 
         {message && <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800">{message}</div>}

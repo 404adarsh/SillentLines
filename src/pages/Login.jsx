@@ -3,7 +3,8 @@ import { ArrowLeft, BookOpen, CheckCircle2, KeyRound, Loader2, LockKeyhole, Mail
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { apiUrl, authUserPayload } from "../lib/api";
+import { authUserPayload, postJson } from "../lib/api";
+import { getAuth0Config } from "../lib/authConfig";
 
 export default function LoginPage() {
   const [error, setError] = useState(null);
@@ -17,6 +18,7 @@ export default function LoginPage() {
     isLoading,
     getAccessTokenSilently,
   } = useAuth0();
+  const hasAuth0Config = getAuth0Config().isConfigured;
 
   // 🔒 BACKEND SYNC (ONLY AFTER AUTH0 LOGIN)
   useEffect(() => {
@@ -24,35 +26,25 @@ export default function LoginPage() {
       if (!isAuthenticated || !user || isLoading) return;
 
       try {
-        const token = await getAccessTokenSilently();
-
-        const response = await fetch(
-          apiUrl("/login_handler.php"),
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({
-              token,
-              ...authUserPayload(user),
-            }),
-          }
-        );
-
-        if (!response.ok) {
-          setError("Server error. Please try again.");
-          return;
+        let token = "";
+        try {
+          token = await getAccessTokenSilently();
+        } catch (tokenError) {
+          console.warn("Auth token unavailable during login sync:", tokenError);
         }
 
-        const data = await response.json();
+        const data = await postJson("/ensure_user.php", {
+          token,
+          ...authUserPayload(user),
+        });
 
-        if (data.status === "success" || data.status === "created") {
+        if (data.status === "success" || data.status === "created" || data.status === "exists") {
           navigate("/moodselect");
         } else {
           setError(data.message || "Login failed.");
         }
-      } catch {
-        setError("Login sync failed. Please try again.");
+      } catch (syncError) {
+        setError(syncError.message || "Login sync failed. Please try again.");
       }
     };
 
@@ -61,20 +53,30 @@ export default function LoginPage() {
 
   // 🔐 LOGIN HANDLERS
   const handleGoogleLogin = () => {
+    if (!hasAuth0Config) {
+      setError("Auth0 is not configured. Add VITE_AUTH0_DOMAIN and VITE_AUTH0_CLIENT_ID to your local .env file, and use only the Auth0 hostname without https://.");
+      return;
+    }
     setLockState("opening");
     loginWithRedirect({
+      appState: { returnTo: "/moodselect" },
       authorizationParams: {
         connection: "google-oauth2",
-        scope: "openid profile email",
+        scope: "openid profile email offline_access",
       },
     });
   };
 
   const handleEmailLogin = () => {
+    if (!hasAuth0Config) {
+      setError("Auth0 is not configured. Add VITE_AUTH0_DOMAIN and VITE_AUTH0_CLIENT_ID to your local .env file, and use only the Auth0 hostname without https://.");
+      return;
+    }
     setLockState("opening");
     loginWithRedirect({
+      appState: { returnTo: "/moodselect" },
       authorizationParams: {
-        scope: "openid profile email",
+        scope: "openid profile email offline_access",
       },
     });
   };
@@ -139,6 +141,11 @@ export default function LoginPage() {
             {error && (
               <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm font-bold text-red-700" role="alert">
                 {error}
+              </div>
+            )}
+            {!hasAuth0Config && !error && (
+              <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm font-bold text-amber-900" role="status">
+                Add your local Auth0 domain and client ID in .env to enable login.
               </div>
             )}
           </div>

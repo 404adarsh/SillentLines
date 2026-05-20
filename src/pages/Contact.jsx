@@ -23,7 +23,7 @@ export default function Contact() {
               <div className="rounded-lg bg-stone-50 p-4">
                 <Mail className="mb-3 h-5 w-5 text-emerald-700" />
                 <h2 className="font-black text-stone-900">Email</h2>
-                <p className="mt-2 text-sm font-semibold text-stone-600">SilentLines@snapcourse.in</p>
+                <p className="mt-2 text-sm font-semibold text-stone-600">Open a GitHub issue or discussion in this repository.</p>
               </div>
               <div className="rounded-lg bg-stone-50 p-4">
                 <MessageSquare className="mb-3 h-5 w-5 text-emerald-700" />

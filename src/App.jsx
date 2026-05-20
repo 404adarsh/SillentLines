@@ -34,6 +34,7 @@ import DailyWorkspace from "./pages/DailyWorkspace";
 import FileTools from "./pages/FileTools";
 import ThemeStudio from "./component/ThemeStudio";
 import AuthLoading from "./component/AuthLoading";
+import DatabaseSetupGate from "./component/DatabaseSetupGate";
 
 const App = () => {
   const { isAuthenticated, isLoading } = useAuth0();
@@ -50,7 +51,7 @@ const App = () => {
 
 
   return (
-    <>
+    <DatabaseSetupGate>
       <Router>
         <AppChrome isAuthenticated={isAuthenticated} isLoading={isLoading} />
         <RouteSeo />
@@ -226,7 +227,7 @@ const App = () => {
           <Route path="*" element={<RouteFallback />} />
         </Routes>
       </Router>
-    </>
+    </DatabaseSetupGate>
   );
 };
 

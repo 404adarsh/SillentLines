@@ -26,7 +26,7 @@ cp .env.example .env
 5. Confirm `VITE_API_BASE_URL` points to your local API:
 
 ```env
-VITE_API_BASE_URL=http://localhost/mydiary-api
+VITE_API_BASE_URL=http://localhost/SillentLines/php
 ```
 
 6. Start development:

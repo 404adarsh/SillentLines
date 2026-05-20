@@ -5,80 +5,79 @@
 </p>
 
 <p align="center">
-  A calm, private journaling frontend built with React and Vite.
+  A local-first diary app with a React + Vite frontend and PHP API for contributors.
 </p>
 
 <p align="center">
-  <strong>Frontend only.</strong> No production backend, no user data, no secrets, no database files.
+  <strong>Public-safe by default:</strong> local database only, no production credentials, no production API endpoints, no user data.
 </p>
 
 ---
 
 ## Overview
 
-Silent Lines Diary is the public frontend repository for a private diary experience. It is designed so contributors can safely improve the user interface, writing flows, themes, accessibility, and frontend features without access to production infrastructure or private diary data.
+Silent Lines Diary is a public development version of a private journaling app. It includes the frontend and a local PHP API so contributors can build and test features on their own machine without touching the production server or production user data.
 
-The production backend, database, credentials, API keys, SQL schemas, and real user content are intentionally not included in this repository.
+Every contributor should run the backend against their own localhost database.
 
 ## Highlights
 
 - React + Vite frontend
+- Local PHP API in `php/`
+- MySQL local-development defaults
 - Auth0-ready login flow
-- Private diary writing screens
-- Mood-based journaling experience
+- Mood-based diary writing
 - Notes, archive, calendar, profile, and settings views
 - Shared-entry reading UI
 - Theme and workspace customization
-- Central API configuration through `src/lib/api.js`
-- Public-safe setup for open-source contributors
+- API base URL configured through `.env`
 
-## Preview
+## Quick start
 
-<p align="center">
-  <img src="public/logo-512.png" alt="Silent Lines Diary preview placeholder" width="220" />
-</p>
+1. Clone or download this repository to your local web server root.
+2. Install frontend dependencies with `npm install`.
+3. Copy `.env.example` to `.env` and update the API base URL.
+4. Edit `php/secrets.php` with your local backend credentials.
+5. Start Vite with `npm run dev` and open `http://localhost:2228`.
 
-Screenshots and demo images will be added here as the public UI evolves.
+## Safety Boundary
 
-## Public Repository Scope
+This repository is safe for public GitHub because it does not include:
 
-This repository includes:
-
-- `src/` frontend source code
-- `public/` static assets
-- `package.json`
-- `vite.config.js`
-- `.env.example`
-- contribution and security documentation
-
-This repository does not include:
-
-- PHP backend source code
-- SQL schemas or migrations
+- production database credentials
+- production API endpoints
+- production server configuration
+- real user data
 - database dumps
-- sample user data
-- production configs
-- API keys, tokens, SMTP credentials, payment keys, or admin secrets
+- API keys, SMTP passwords, payment keys, or admin tokens
 
-## Tech Stack
+The repo includes `php/secrets.php` as a local placeholder file. Fill it with your own local values and keep real credentials out of public commits.
 
-- React
-- Vite
-- React Router
-- Auth0 React SDK
-- Tailwind CSS
-- Lucide React icons
-- Chart.js
-- jsPDF
+The PHP backend defaults to:
 
-## Getting Started
-
-Clone the repository:
-
-```bash
-git clone https://github.com/404adarsh/SillentLines.git
-cd SillentLines
+```text
+host: localhost
+username: root
+password: blank
+database: silentlinesdiary
 ```
+
+These are local development defaults only. Contributors can override them privately with `php/secrets.php`.
+
+## Project Structure
+
+```text
+SillentLines/
+  public/          Static assets
+  src/             React frontend
+  php/             Local PHP API
+  .env.example     Frontend environment example
+  README.md
+  CONTRIBUTING.md
+  SECURITY.md
+```
+
+## Frontend Setup
 
 Install dependencies:
 
@@ -86,212 +85,207 @@ Install dependencies:
 npm install
 ```
 
-Create your local environment file:
+Copy the environment example:
 
 ```bash
 cp .env.example .env
 ```
 
-Start the development server:
+Start Vite:
 
 ```bash
 npm run dev
 ```
 
-Open:
+Frontend URL:
 
 ```text
 http://localhost:2228
 ```
 
-## Environment Variables
+## PHP API Setup
 
-The frontend uses environment variables prefixed with `VITE_`.
+Place or clone this folder under your local web server document root, for example:
 
-```env
-VITE_API_BASE_URL=http://localhost/mydiary-api
-VITE_PUBLIC_BASE_URL=http://localhost:2228
-VITE_AUTH0_DOMAIN=
-VITE_AUTH0_CLIENT_ID=
+```text
+C:\xampp\htdocs\SillentLines
 ```
 
-All API requests should use:
+The frontend expects the local PHP API at:
+
+```env
+VITE_API_BASE_URL=http://localhost/SillentLines/php
+```
+
+If your folder name or web server path is different, update `.env` with your own local URL.
+
+## Automatic Database Setup
+
+When you open the frontend on localhost, the app checks whether the local database exists.
+
+If the database is missing, you will see a local setup screen asking:
+
+```text
+Do you want to create the local database and tables?
+```
+
+If you choose yes, the frontend calls:
+
+```text
+php/setup_database.php
+```
+
+That endpoint is restricted to localhost requests and does not accept arbitrary database names or SQL from the browser. It creates only the configured local database and the known application tables.
+
+If you choose not now, no database changes are made.
+
+## Local Database Setup
+
+Create a local MySQL database:
+
+```sql
+CREATE DATABASE silentlinesdiary CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+Default local connection:
+
+```text
+host: localhost
+username: root
+password: blank
+database: silentlinesdiary
+```
+
+To override database settings, copy:
+
+```bash
+cp php/secrets.example.php php/secrets.php
+```
+
+Then edit `php/secrets.php` locally with your own keys. This repository includes `php/secrets.php` so you can commit a placeholder local config file, but do not publish real secret values in public forks or pull requests.
+
+Manual setup is also available:
+
+```bash
+python scripts/setup_database.py
+bash scripts/setup_database.sh
+```
+
+Both scripts ask before creating anything and use the same local PHP setup code as the browser flow.
+
+## Environment Variables
+
+Frontend `.env` or `.env.local`:
+
+```env
+VITE_API_BASE_URL=http://localhost/SillentLines/php
+VITE_PUBLIC_BASE_URL=http://localhost:2228
+VITE_AUTH0_DOMAIN=your-tenant.region.auth0.com
+VITE_AUTH0_CLIENT_ID=your_public_client_id
+```
+
+`.env.local` is ignored by Git and is the recommended place for private local values.
+
+All frontend API calls should use:
 
 ```text
 src/lib/api.js
 ```
 
-Do not hardcode API URLs inside pages or components.
-
 ## Auth0 Login Setup
 
-Auth0 is optional for basic frontend work, but useful if you want to test authenticated screens locally.
+Auth0 is optional for basic UI work, but useful for authenticated screens.
 
 1. Create a free Auth0 account at `https://auth0.com`.
-2. Create a new application.
-3. Choose **Single Page Application**.
-4. Open the application settings.
-5. Add this to **Allowed Callback URLs**:
+2. Create a **Single Page Application**.
+3. Add this to **Allowed Callback URLs**:
+
+```text
+http://localhost:2228/login
+```
+
+4. Add this to **Allowed Logout URLs**:
 
 ```text
 http://localhost:2228
 ```
 
-6. Add this to **Allowed Logout URLs**:
+5. Add this to **Allowed Web Origins**:
 
 ```text
 http://localhost:2228
 ```
 
-7. Add this to **Allowed Web Origins**:
+6. Copy your Auth0 Domain and Client ID from the app settings.
+   - Domain: `your-tenant.region.auth0.com` (host only, no `https://` prefix)
+   - Client ID: `your_public_client_id`
 
-```text
-http://localhost:2228
-```
-
-8. Copy your Auth0 domain and client ID into `.env`:
+7. Put your own local Auth0 values in `.env`:
 
 ```env
 VITE_AUTH0_DOMAIN=your-tenant.region.auth0.com
 VITE_AUTH0_CLIENT_ID=your_public_client_id
 ```
 
-Auth0 client IDs are public identifiers, but contributors should still use their own local Auth0 application values. Never commit organization-specific Auth0 configuration.
+> If you save the config through the app setup screen instead of `.env`, enter only the Auth0 domain hostname and client ID.
 
-## Working With A Local API
+If you need help finding these values, use the Auth0 SPA quickstart:
 
-The frontend can connect to a compatible local API:
+https://auth0.com/docs/quickstart/spa/react
 
-```env
-VITE_API_BASE_URL=http://localhost/mydiary-api
-```
+Do not commit organization-specific Auth0 values.
 
-The API implementation is private and not part of this public repository. You can still build UI features, improve layouts, and review frontend behavior without production backend access.
-
-If you add a new API call, route it through `src/lib/api.js` and keep the endpoint configurable through `VITE_API_BASE_URL`.
-
-## Available Scripts
-
-Run the dev server:
-
-```bash
-npm run dev
-```
-
-Build for production:
-
-```bash
-npm run build
-```
-
-Run linting:
-
-```bash
-npm run lint
-```
-
-Preview the production build:
-
-```bash
-npm run preview
-```
-
-## How To Contribute
-
-We welcome frontend contributions.
+## Adding Features
 
 Good contribution areas:
 
 - UI polish
-- accessibility improvements
+- accessibility
 - responsive layout fixes
-- new frontend-only features
-- theme improvements
-- empty states and loading states
-- copy improvements
-- component refactors
-- tests and quality improvements
-- documentation updates
+- new frontend features
+- local PHP endpoint improvements
+- empty, loading, and error states
+- documentation
 
-Contribution workflow:
+Rules for new features:
+
+- keep API URLs configurable
+- use `src/lib/api.js`
+- keep PHP connected to localhost/private contributor databases
+- never hardcode production endpoints
+- never commit secrets or real diary data
+- validate user ownership before returning private diary data
+
+## Scripts
+
+```bash
+npm run dev
+npm run build
+npm run lint
+npm run preview
+```
+
+## Contributing
 
 1. Fork the repository.
-2. Create a branch:
-
-```bash
-git checkout -b feature/your-feature-name
-```
-
-3. Install dependencies:
-
-```bash
-npm install
-```
-
-4. Copy the environment example:
-
-```bash
-cp .env.example .env
-```
-
-5. Make your frontend changes.
-6. Run:
-
-```bash
-npm run build
-```
-
-7. Open a pull request.
-
-For UI changes, include screenshots or a short screen recording when possible.
-
-## Adding New Features
-
-When adding a frontend feature:
-
-- Keep changes focused and easy to review.
-- Follow existing component and styling patterns.
-- Use `src/lib/api.js` for backend requests.
-- Keep API URLs configurable.
-- Do not add backend credentials or production endpoints.
-- Do not commit `.env`.
-- Do not include real diary content in fixtures, screenshots, or tests.
-- Add helpful empty, loading, and error states.
-- Make sure the UI works on mobile and desktop.
-
-If a feature requires backend support, open an issue or pull request describing the frontend need and expected API shape without including private backend code.
-
-## Security And Privacy
-
-This project is built around private diary content, so the public repository has a strict boundary.
-
-Never commit:
-
-- real diary entries
-- user records
-- API keys
-- access tokens
-- database credentials
-- SQL files
-- database dumps
-- SMTP credentials
-- payment keys
-- admin secrets
-- production backend code
-- production server configuration
-
-Report vulnerabilities privately using [SECURITY.md](SECURITY.md).
+2. Create a branch.
+3. Run `npm install`.
+4. Copy `.env.example` to `.env`.
+5. Configure your local PHP API and database.
+6. Make your change.
+7. Run `npm run build`.
+8. Open a pull request with screenshots for UI changes.
 
 ## Contact
 
-For general questions, feature ideas, and frontend contribution discussion:
+For general questions, feature ideas, and contributor help:
 
 - Open a GitHub issue
-- Start a GitHub discussion, if discussions are enabled
+- Start a GitHub discussion, if enabled
 - Comment on the relevant pull request
 
-For security issues, do not open a public issue. Follow [SECURITY.md](SECURITY.md).
+For security reports, do not open a public issue. See [SECURITY.md](SECURITY.md).
 
 ## License
 
-Silent Lines Diary is released under the MIT License. See [LICENSE](LICENSE).
+MIT License. See [LICENSE](LICENSE).
