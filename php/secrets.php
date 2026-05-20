@@ -1,11 +1,11 @@
 <?php
-// Local development secrets. Edit this file with your own local values.
+// Local development secrets. Do not commit this file.
 define('DIARY_DB_HOST', 'localhost');
 define('DIARY_DB_USER', 'root');
 define('DIARY_DB_PASS', '');
 define('DIARY_DB_NAME', 'silentlinesdiary');
-define('AUTH0_DOMAIN', '');
-define('AUTH0_CLIENT_ID', '');
+define('AUTH0_DOMAIN', 'sillentlines.us.auth0.com');
+define('AUTH0_CLIENT_ID', 'PjRmylfMZHYdhjxexkDkKXRzaqNGTwhc');
 define('ALCHEMY_API_KEY', '');
 define('SARVAM_API_KEY', '');
 define('SARVAM_MODEL', 'sarvam-30b');

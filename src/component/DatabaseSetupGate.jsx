@@ -5,6 +5,31 @@ import { API_BASE, apiUrl } from "../lib/api";
 const SETUP_CONFIRMATION = "create-local-database";
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "::1"]);
 
+function isWindows() {
+  return /Windows/i.test(navigator.userAgent || navigator.platform || "");
+}
+
+function isLinux() {
+  return /Linux|X11/i.test(navigator.userAgent || navigator.platform || "");
+}
+
+function isMac() {
+  return /Mac/i.test(navigator.userAgent || navigator.platform || "");
+}
+
+function getServerStartSuggestion() {
+  if (isWindows()) {
+    return "If you're using XAMPP, open the XAMPP Control Panel and start Apache and MySQL. Otherwise, start your local Apache/PHP service.";
+  }
+  if (isLinux()) {
+    return "If you're using LAMPP, run 'sudo /opt/lampp/lampp start'. Otherwise, start your local Apache/PHP stack.";
+  }
+  if (isMac()) {
+    return "If you're using XAMPP or MAMP, open its control panel and start Apache and MySQL. Otherwise, start your local PHP/Apache service.";
+  }
+  return "Start your local Apache/PHP server and ensure the PHP API folder is reachable in the browser.";
+}
+
 function shouldRunLocalSetupGate() {
   try {
     const api = new URL(API_BASE, window.location.origin);
@@ -22,6 +47,7 @@ export default function DatabaseSetupGate({ children }) {
     creating: false,
     denied: false,
     message: "",
+    serverUnavailable: false,
     database: "silentlinesdiary",
   });
 
@@ -54,7 +80,8 @@ export default function DatabaseSetupGate({ children }) {
           ...current,
           loading: false,
           ready: false,
-          message: "The local PHP API is not reachable. Start Apache/PHP and confirm VITE_API_BASE_URL points to your local php folder.",
+          serverUnavailable: true,
+          message: "The local PHP API is not reachable.",
         }));
       });
 
@@ -117,6 +144,14 @@ export default function DatabaseSetupGate({ children }) {
           <div className="mt-5 flex gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-900">
             <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
             <p>{state.message}</p>
+          </div>
+        )}
+        {state.serverUnavailable && (
+          <div className="mt-5 rounded-lg border border-stone-200 bg-stone-50 p-4 text-sm text-stone-700">
+            <p className="font-black text-stone-900">Local server appears to be offline.</p>
+            <p className="mt-2">{getServerStartSuggestion()}</p>
+            <p className="mt-2">Then verify the local API URL in `.env` or `VITE_API_BASE_URL` and visit:</p>
+            <pre className="mt-3 overflow-x-auto rounded-lg bg-stone-950 p-4 text-xs font-bold text-white">{`${API_BASE}/setup_status.php`}</pre>
           </div>
         )}
 
