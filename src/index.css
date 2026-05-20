@@ -1,0 +1,164 @@
+@import "tailwindcss";
+
+html,
+body,
+#root {
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+}
+
+input,
+textarea,
+select,
+button {
+  min-width: 0;
+}
+
+input:not([type="range"]):not([type="color"]):not([type="file"]):not([type="checkbox"]):not([type="radio"]),
+select {
+  min-height: 3rem;
+}
+
+textarea {
+  min-height: 7rem;
+  line-height: 1.5;
+}
+
+@keyframes scale-in {
+  0% { transform: scale(0.6); opacity: 0 }
+  100% { transform: scale(1); opacity: 1 }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.5s ease-out;
+}
+
+@keyframes diary-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(22px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes diary-soft-pulse {
+  0%, 100% {
+    transform: translateY(0);
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+  }
+  50% {
+    transform: translateY(-3px);
+    box-shadow: 0 24px 55px rgba(15, 23, 42, 0.12);
+  }
+}
+
+@keyframes diary-shimmer {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(120%); }
+}
+
+.diary-enter {
+  animation: diary-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.diary-card-enter {
+  animation: diary-rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.diary-retention-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.diary-retention-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 50%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: translateX(-120%);
+  pointer-events: none;
+}
+
+.diary-retention-card:hover::after {
+  animation: diary-shimmer 0.9s ease;
+}
+
+.diary-floating {
+  animation: diary-soft-pulse 5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+@keyframes burn-strip {
+  0% {
+    background: #fff;
+    opacity: 1;
+    filter: none;
+  }
+  40% {
+    background: #3b2f2f;
+    opacity: 0.9;
+  }
+  70% {
+    background: #1a0f0f;
+    opacity: 0.6;
+  }
+  100% {
+    background: transparent;
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+}
+
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  .diary-print-area,
+  .diary-print-area * {
+    visibility: visible !important;
+  }
+  .diary-print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 1rem;
+    background: #fff;
+  }
+  .diary-print-area .diary-retention-card {
+    page-break-inside: avoid;
+  }
+  .diary-print-area .no-print,
+  .diary-print-area button,
+  .diary-print-area input,
+  .diary-print-area textarea,
+  .diary-print-area select {
+    display: none !important;
+  }
+  .diary-print-area .rounded-3xl,
+  .diary-print-area .rounded-lg,
+  .diary-print-area .rounded-full {
+    border-radius: 0.75rem !important;
+  }
+}
